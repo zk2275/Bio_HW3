@@ -1,0 +1,112 @@
+---
+title: "HW3"
+author: "Zhuodiao Kuang"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+
+```{r setup, echo = FALSE, cache = FALSE, message = FALSE}
+rm(list = ls())
+library(knitr)
+## Global options
+opts_chunk$set(echo      = TRUE,
+	             cache     = TRUE,
+               prompt    = FALSE,
+               tidy      = FALSE,
+               comment   = NA,
+               message   = FALSE,
+               warning   = FALSE,
+               dpi       = 150,
+               fig.width = 4, 
+               fig.asp   = 5/7,
+               fig.align = "center")
+# attr.source = '.numberLines'
+```
+
+
+```{r load libraries}
+library(MASS)
+library(dplyr)
+```
+
+# Problem 1
+
+Some medical professionals claim that the average weight of American women is 171 pounds. The column lwt holds the mother’s weight (in pounds) at last menstrual period, i.e. her pre-pregnancy weight. Use this column for the following questions.
+
+
+#### a) Construct a 95% confidence interval of true mean weight of American women
+
+$$\frac{\bar{X}-\mu}{s/\sqrt{n}} \sim t(n-1)$$
+
+So, the interval is
+
+$$\bar{X}-\frac{s}{\sqrt{n}}t_{0.975} \le \mu \le \bar{X}+\frac{s}{\sqrt{n}}t_{0.975}$$
+
+```{r}
+wt <- birthwt |> pull(lwt)
+n <- length(wt)
+df = n-1
+t <- qt(0.975,df = df)
+lq <- mean(wt) - sd(wt)/sqrt(n)*t
+uq <- mean(wt) + sd(wt)/sqrt(n)*t
+print(c(lq,uq))
+
+```
+
+So, the 95% confidence interval of true mean weight of American women is $[125.4270 ,134.2027]$.
+
+
+
+#### b) Interpret the confidence interval.
+
+We are 95% confident that the average weight of all American women in the population is between 125.4270 and 134.2027 pounds. This means that if we repeated the same sampling procedure many times and calculated a confidence interval for each sample, about 95% of these intervals would contain the true population mean weight of American women.
+
+
+#### c) Comment on the validity of the statement above (“Some medical professionals claim that the average weight of American women is 171 pounds”). In other words, what can we say about this statement given our confidence interval from part a?
+
+
+Given our confidence interval of [125.4270 ,134.2027] for the true mean weight of American women, we can say that the statement that the average weight of American women is 171 pounds is very unlikely to be true. This is because 171 pounds is far outside the range of plausible values for the population mean weight of American women based on our sample data. If the statement were true, it would mean that our sample was not representative of the population or that there was a large sampling error or bias in our data collection process. Therefore, we have strong evidence to reject the claim that the average weight of American women is 171 pounds.
+
+# Problem 2
+
+In this data set, we have a variable (smoke) indicating the smoking status of the mothers during pregnancy. Some doctors believe that smoking status is related to weight. Using the columns smoke and lwt, test this claim. (Note: a value of 1 indicates the mother is in the “smoking” group.)
+
+
+
+#### a) Test for the equality of variances between the two groups. (Use a 5% significance level.)
+
+#### b) Given your answer from part a, what kind of hypothesis test will you perform?
+
+#### c) Conduct your chosen hypothesis test from part b at the 10% significance level. What is your decision regarding the null? Interpret this result in the context of the problem.
+
+
+# Problem 3
+
+According to the CDC, approximately 20% of pregnant American women suffer from hypertension. Do our data support this claim? (Use column ht - a value of 1 means the mother is suffering from hypertension.)
+
+
+
+#### a) Conduct a 99% confidence interval and interpret the results. What can we conclude about the CDC’s claim from this interval?
+
+
+#### b) Conduct a one-sided hypothesis test at the 𝛼 = 0.1 level. In this test, we want to see if the true proportion is indeed less than the claimed 20%. What can we conclude about the CDC’s claim?
+
+
+# Problem 4
+
+#### Is there a difference between uterine irritability in the group of pregnant women who smoke vs the group of pregnant women that don’t smoke? (Use columns ui and smoke.)
+
+
+#### Conduct a hypothesis test at the 𝛼 = 0.01 level. What can we conclude about the proportions of women with uterine irritability between the smoking groups?
+
+
+# Problem 5
+
+Is race related to birth weight? (Use columns race and bwt.)
+
+#### a) What test would be most appropriate to answer this question?
+#### b) What assumptions are we making by using this test? Are all assumptions met?
+#### c) Conduct the test at the 5% significance level and interpret your results. Be sure to write the hypotheses you are testing.
+#### d) Perform multiple comparisons - which races are significantly different? Interpret your results.
+
