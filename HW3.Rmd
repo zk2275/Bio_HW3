@@ -2,7 +2,7 @@
 title: "HW3"
 author: "Zhuodiao Kuang"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: github_document
 ---
 
 
@@ -76,10 +76,56 @@ In this data set, we have a variable (smoke) indicating the smoking status of th
 
 #### a) Test for the equality of variances between the two groups. (Use a 5% significance level.)
 
+
+Testing the  hypothesis: 
+$$H_0 : \sigma_1^2 = \sigma_2^2   vs   H_1 : \sigma_1^2 \neq \sigma_2^2$$
+
+$$F =\frac{s_1^2}{s_2^2}\sim F_{n_1-1,n_2-1}   under H_0$$
+
+```{r}
+wt1 <- birthwt |> filter(smoke == 1) |> pull(lwt)
+wt0 <- birthwt |> filter(smoke == 0) |> pull(lwt)
+n1 <- length(wt1)
+n0 <- length(wt0)
+s1 <- var(wt1)
+s0 <- var(wt0)
+F = s1/s0
+
+lq <-qf(0.025,n1-1,n0-1)
+uq <-qf(0.975,n1-1,n0-1)
+
+F;lq;uq 
+```
+
+Because F is equal to 1.41, it's between the values, $F_{n_1-1,n_2-1,\alpha/2}$ and $F_{n_1-1,n_2-1, 1-\alpha/2}$.
+So, we cannot reject $H_0$ and conclude that there is no evidence to support that the two population variances are not equal.
+
+
 #### b) Given your answer from part a, what kind of hypothesis test will you perform?
+
+Given that two population variances are equal, we can test the hypothesis that both groups have the same mean(two-sided).
+
+Testing the hypothesis: 
+$$H_0 : \mu_1 = \mu_2   vs   H_1 : \mu_1 \neq \mu_2$$
+
 
 #### c) Conduct your chosen hypothesis test from part b at the 10% significance level. What is your decision regarding the null? Interpret this result in the context of the problem.
 
+$$t = \frac{\bar{X_1}-\bar{X_2}}{s\sqrt{(\frac{1}{n_1}+\frac{1}{n_2})}}, \sim t_{n_1+n_2-2} under H_0$$
+
+$$s^2 = \frac{(n_1-1)s_1^2+(n_2-1)s_2^2}{n_1+n_2-2}$$
+
+```{r}
+s_2 <- (var(wt1)*(n1-1)+var(wt0)*(n0-1))/(n1+n0-2)
+s <-sqrt(s_2)
+t <- (mean(wt1) - mean(wt0) )/(s*sqrt(1/n1+1/n0))
+t0<-qt(0.95,n1+n0-2)
+abs(t);t0
+```
+
+$$\because |t|=0.60 \le t_{n_1+n_2-2,1-\alpha/2} = 1.65,\alpha = 0.10$$
+
+So, we cannot reject the null hypothesis that the hypothesis that both groups have the same mean. 
 
 # Problem 3
 
@@ -107,6 +153,6 @@ Is race related to birth weight? (Use columns race and bwt.)
 
 #### a) What test would be most appropriate to answer this question?
 #### b) What assumptions are we making by using this test? Are all assumptions met?
-#### c) Conduct the test at the 5% significance level and interpret your results. Be sure to write the hypotheses you are testing.
+#### c) Conduct the test at the 5% significance level and interpret your results. Be sure to write the  hypothesis you are testing.
 #### d) Perform multiple comparisons - which races are significantly different? Interpret your results.
 
