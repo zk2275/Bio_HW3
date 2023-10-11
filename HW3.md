@@ -1,7 +1,7 @@
 HW3
 ================
 Zhuodiao Kuang
-2023-10-09
+2023-10-10
 
 ``` r
 library(MASS)
@@ -139,11 +139,73 @@ ht - a value of 1 means the mother is suffering from hypertension.)
 
 #### a) Conduct a 99% confidence interval and interpret the results. What can we conclude about the CDC’s claim from this interval?
 
+$$\frac{\bar{X}-\mu}{s/\sqrt{n}} \sim t(n-1)under H_0$$
+
+So, the interval is
+
+$$\bar{X}-\frac{s}{\sqrt{n}}t_{0.995} \le \mu \le \bar{X}+\frac{s}{\sqrt{n}}t_{0.995}$$
+
+``` r
+ht <- birthwt |>pull(ht)
+x <- mean(ht)
+s <- sd(ht)
+n <- length(ht)
+t <- qt(0.995,n-1)
+lq <- x-s/sqrt(n)*t
+uq <- x+s/sqrt(n)*t
+lq;uq
+```
+
+    [1] 0.0172132
+
+    [1] 0.1097709
+
+So, the 99% confidence interval is \[0.017,0.110\], and 0.2 is not
+contained in the interval. That means we are 99% confident that the
+percent of pregnant American women suffer from hypertensionthe is
+between 1.7% and 11%. This means that if we repeated the same sampling
+procedure many times and calculated a confidence interval for each
+sample, about 99% of these intervals would contain the true population
+mean percent of pregnant American women suffer from hypertensionthe.
+
+Since 20% is outside the 99% confidence interval, it is very unlikely
+that the 20% is the true population mean.
+
 #### b) Conduct a one-sided hypothesis test at the 𝛼 = 0.1 level. In this test, we want to see if the true proportion is indeed less than the claimed 20%. What can we conclude about the CDC’s claim?
+
+$$H_0: \mu <0.2 \space H_1:\mu \ge 0.2$$
+
+$$ \mu \le \bar{X}+\frac{s}{\sqrt{n}}t_{0.9}under H_0$$
+
+``` r
+t2 <- qt(0.9,n-1)
+uq2 <- x+s/sqrt(n)*t2
+uq2
+```
+
+    [1] 0.08636392
+
+So, the 90% confidence interval is \[0,0.086\], and 0.2 is not contained
+in the interval. That means we are 90% confident that the percent of
+pregnant American women suffer from hypertensionthe is less than 8.6%.
+This means that if we repeated the same sampling procedure many times
+and calculated a confidence interval for each sample, about 90% of these
+intervals would contain the true population mean percent of pregnant
+American women suffer from hypertensionthe.
+
+Since 20% is outside the 90% confidence interval, it is very unlikely
+that the CDC’s claim is true.
 
 # Problem 4
 
 #### Is there a difference between uterine irritability in the group of pregnant women who smoke vs the group of pregnant women that don’t smoke? (Use columns ui and smoke.)
+
+``` r
+ui1 <- birthwt |> filter(smoke == 1) |> pull(ui)
+ui0 <- birthwt |> filter(smoke == 0) |> pull(ui)
+mean_ui1 <-mean(ui1)
+mean_ui0 <-mean(ui0)
+```
 
 #### Conduct a hypothesis test at the 𝛼 = 0.01 level. What can we conclude about the proportions of women with uterine irritability between the smoking groups?
 
