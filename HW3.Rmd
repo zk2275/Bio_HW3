@@ -2,7 +2,9 @@
 title: "HW3"
 author: "Zhuodiao Kuang"
 date: "`r Sys.Date()`"
-output: github_document
+output:
+ pdf_document:
+  latex_engine: xelatex
 ---
 
 
@@ -129,64 +131,80 @@ So, we cannot reject the null hypothesis that the hypothesis that both groups ha
 
 # Problem 3
 
-According to the CDC, approximately 20% of pregnant American women suffer from hypertension. Do our data support this claim? (Use column ht - a value of 1 means the mother is suffering from hypertension.)
+According to the CDC, approximately 20% of pregnant American women suffer from hyper-tension. Do our data support this claim? (Use column ht - a value of 1 means the mother is suffering from hypertension.)
 
 #### a) Conduct a 99% confidence interval and interpret the results. What can we conclude about the CDC’s claim from this interval?
 
-$$\frac{\bar{X}-\mu}{s/\sqrt{n}} \sim t(n-1)under H_0$$
+
 
 So, the interval is
 
-$$\bar{X}-\frac{s}{\sqrt{n}}t_{0.995} \le \mu \le \bar{X}+\frac{s}{\sqrt{n}}t_{0.995}$$
+$$(\hat{p}- z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}-\frac{1}{2n},\hat{p}+ z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}+\frac{1}{2n})$$
 ```{r}
 ht <- birthwt |>pull(ht)
-x <- mean(ht)
-s <- sd(ht)
+p <- mean(ht)
 n <- length(ht)
-t <- qt(0.995,n-1)
-lq <- x-s/sqrt(n)*t
-uq <- x+s/sqrt(n)*t
+s <- sqrt(p*(1-p)/n)
+z <- qnorm(0.995)
+lq <- p-s*z-1/(2*n)
+uq <- p+s*z+1/(2*n)
 lq;uq
 ```
 
-So, the 99% confidence interval is [0.017,0.110], and 0.2 is not contained in the interval. That means we are 99% confident that the percent of pregnant American women suffer from hypertensionthe is between 1.7% and 11%. This means that if we repeated the same sampling procedure many times and calculated a confidence interval for each sample, about 99% of these intervals would contain the true population mean percent of pregnant American women suffer from hypertensionthe.
+So, the 99% confidence interval is [0.015,0.112], and 0.2 is not contained in the interval. That means we are 99% confident that the percent of pregnant American women suffer from hyper-tension is between 1.5% and 11.2%. This means that if we repeated the same sampling procedure many times and calculated a confidence interval for each sample, about 99% of these intervals would contain the true population mean percent of pregnant American women suffer from hyper-tension.
 
 Since 20% is outside the 99% confidence interval, it is very unlikely that the 20% is the true population mean.
 
 #### b) Conduct a one-sided hypothesis test at the 𝛼 = 0.1 level. In this test, we want to see if the true proportion is indeed less than the claimed 20%. What can we conclude about the CDC’s claim?
 
+$$H_0: \mu \ge 0.2 \space H_1:\mu < 0.2$$
+$$z = \frac{\hat{p}-p_0}{\sqrt{\frac{p_0(1-p_0)}{n}}} \sim N(0,1),  under H_0$$
 
-$$H_0: \mu <0.2 \space H_1:\mu \ge 0.2$$
-
-
-$$ \mu \le \bar{X}+\frac{s}{\sqrt{n}}t_{0.9}under H_0$$
-
+$$p_0 = 0.2, \alpha = 0.9$$
 ```{r}
-t2 <- qt(0.9,n-1)
-uq2 <- x+s/sqrt(n)*t2
-uq2
-
+p0 <- 0.2
+z <- (p-p0)/sqrt(p0*(1-p0)/n)
+zalpha <- qnorm(0.9)
+abs(z);zalpha
 ```
 
-So, the 90% confidence interval is [0,0.086], and 0.2 is not contained in the interval. That means we are 90% confident that the percent of pregnant American women suffer from hypertensionthe is less than 8.6%. This means that if we repeated the same sampling procedure many times and calculated a confidence interval for each sample, about 90% of these intervals would contain the true population mean percent of pregnant American women suffer from hypertensionthe.
-
-Since 20% is outside the 90% confidence interval, it is very unlikely that the CDC’s claim is true.
+Even we assume $p_0 = 0.2$ for the test, $|z|>z_{1-\alpha/2}$, so we reject $H_0$ and think that the true proportion is indeed less than the claimed 20%. So, based on the result of the test, we conclude that it's very unlikely that the proportion exceeds 20%, CDC’s claim may be too exaggerating.
 
 # Problem 4
 
-#### Is there a difference between uterine irritability in the group of pregnant women who smoke vs the group of pregnant women that don’t smoke? (Use columns ui and smoke.)
+#### Is there a difference between uterine irritability in the group of pregnant women who smoke vs the group of pregnant women that don’t smoke? (Use columns ui and smoke.) Conduct a hypothesis test at the 𝛼 = 0.01 level. What can we conclude about the proportions of women with uterine irritability between the smoking groups?
+
+
+
+
+
+
+
+Suppose we test: $$H_0: p_1=p_2=p H_1:p_1 \neq p_2$$
+
+If the null hypothesis is true:
+
+$$\hat{p_1}-\hat{p_2} \sim N(0,p(1-p)(\frac{1}{n_1} + \frac{1}{n_2}))$$
+
+$$\hat{p} = \frac{n_1\hat{p_1}+n_2\hat{p_2}}{n_1+n_2}$$
+
+So, the test statistic is given by:
+
+$$z =\frac{\hat{p_1}-\hat{p_2} }{\sqrt{\hat{p}\hat{q}(\frac{1}{n_1} + \frac{1}{n_2})}}, where \space \hat{p}  = \frac{n_1\hat{p_1}+n_2\hat{p_2}}{n_1+n_2}$$
 
 ```{r}
 ui1 <- birthwt |> filter(smoke == 1) |> pull(ui)
 ui0 <- birthwt |> filter(smoke == 0) |> pull(ui)
-mean_ui1 <-mean(ui1)
-mean_ui0 <-mean(ui0)
-
+p1 <-mean(ui1)
+p0 <-mean(ui0)
+n1 = length(ui1)
+n0 = length(ui0)
+p<-(n1*p1+n0*p0)/(n1+n0)
+z = (p1-p0)/sqrt(p*(1-p)*(1/n1+1/n0))
+abs(z);qnorm(0.995)
 ```
 
-
-
-#### Conduct a hypothesis test at the 𝛼 = 0.01 level. What can we conclude about the proportions of women with uterine irritability between the smoking groups?
+At 0.01 significance level, |z-stat| < 2.58; thus we don't reject the null and conclude that there is no significant difference between the proportions of women with uterine irritability between the smoking groups.
 
 
 # Problem 5
@@ -194,7 +212,113 @@ mean_ui0 <-mean(ui0)
 Is race related to birth weight? (Use columns race and bwt.)
 
 #### a) What test would be most appropriate to answer this question?
+
+ANOVA. Since we want to compare the differences between 3 birth weight groups.
+
 #### b) What assumptions are we making by using this test? Are all assumptions met?
+
+Assumptions:
+1. There are k populations of interest(k>2);
+2. Samples are drawn independently from the underlying populations;
+3. Homoscedasticity - the variances of k populations area equal; 
+4. Normality - the distribution of the error terms is normal.
+
+
+```{r}
+data = birthwt
+# Perform the ANOVA test
+model <- aov(bwt ~ race, data = data)
+
+# Find the best-fit model
+summary(model)
+
+# Check for homoscedasticity
+plot(model)
+
+```
+
+Conclusion:
+1. There are 3 populations of interest;
+2. We are not sure about whether samples are drawn independently from the underlying populations;
+From the plot I draw, I think homoscedasticity and normality are satisfied.
+
+
 #### c) Conduct the test at the 5% significance level and interpret your results. Be sure to write the  hypothesis you are testing.
+
+
+
+$H_0: \mu_1=\mu_2=\mu_3vs. H_1$:at least two means are not equal
+
+$$F = \frac{Between SS/(k-1)}{WithinSS/(n-k)} \sim F_{k-1,n-k}$$
+
+From Problem b):
+
+$$\because F_{k-1,n-k,1-\alpha} =3.89, \alpha = 0.05$$
+
+$$\because F=7.369 > 3.89 $$
+
+So, we reject the null hypothesis and think that there are at least two weight groups of different races are different.
+
+
+
 #### d) Perform multiple comparisons - which races are significantly different? Interpret your results.
 
+Given that two population variances are equal, we can test the hypothesis that both groups have the same mean(two-sided).($\alpha = 0.05$)
+
+Testing the hypothesis: 
+$$H_0 : \mu_1 = \mu_2   vs   H_1 : \mu_1 \neq \mu_2$$
+$$H_0 : \mu_1 = \mu_3   vs   H_1 : \mu_1 \neq \mu_3$$
+
+$$H_0 : \mu_2 = \mu_3   vs   H_1 : \mu_2 \neq \mu_3$$
+
+Just take Group1 and Group2 as an example:
+
+$$t = \frac{\bar{X_1}-\bar{X_2}}{s\sqrt{(\frac{1}{n_1}+\frac{1}{n_2})}}, \sim t_{n_1+n_2-2} under H_0$$
+
+$$s^2 = \frac{(n_1-1)s_1^2+(n_2-1)s_2^2}{n_1+n_2-2}$$
+
+```{r}
+wt1 <- birthwt |> filter(race == 1) |> pull(bwt)
+wt2 <- birthwt |> filter(race == 2) |> pull(bwt)
+wt3 <- birthwt |> filter(race == 3) |> pull(bwt)
+n1 <- length(wt1)
+n2 <- length(wt2)
+n3 <- length(wt3)
+s_2 <- (var(wt1)*(n1-1)+var(wt2)*(n2-1))/(n1+n2-2)
+s <-sqrt(s_2)
+t <- (mean(wt1) - mean(wt2) )/(s*sqrt(1/n1+1/n2))
+t0<-qt(0.975,n1+n2-2)
+abs(t);t0
+```
+
+$$\because |t|=2.44 \ge t_{n_1+n_2-2,1-\alpha/2} = 1.98,\alpha = 0.05$$
+
+So, we reject the null hypothesis that the hypothesis that both groups have the same mean of the baby birth weight. (Race1 and Race2)
+
+```{r}
+s_2 <- (var(wt1)*(n1-1)+var(wt3)*(n3-1))/(n1+n3-2)
+s <-sqrt(s_2)
+t <- (mean(wt1) - mean(wt3) )/(s*sqrt(1/n1+1/n3))
+t0<-qt(0.975,n1+n3-2)
+abs(t);t0
+```
+
+$$\because |t|=2.58 \ge t_{n_1+n_2-2,1-\alpha/2} = 1.97,\alpha = 0.05$$
+
+So, we reject the null hypothesis that the hypothesis that both groups have the same mean of the baby birth weight. (Race1 and Race3)
+
+```{r}
+s_2 <- (var(wt2)*(n2-1)+var(wt3)*(n3-1))/(n2+n3-2)
+s <-sqrt(s_2)
+t <- (mean(wt2) - mean(wt3) )/(s*sqrt(1/n2+1/n3))
+t0<-qt(0.975,n2+n3-2)
+abs(t);t0
+```
+
+$$\because |t|=0.53 \le t_{n_1+n_2-2,1-\alpha/2} = 1.99,\alpha = 0.05$$
+
+So, we cannot reject the null hypothesis that both groups have the same mean of the baby birth weight. (Race1 and Race3)
+
+#### Conclusion
+
+The mean of birth weight of Race1 is significantly different from other two groups.
